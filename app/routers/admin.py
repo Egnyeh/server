@@ -30,8 +30,17 @@ async def update_user_data(
     success = update_user(user_id, datos.model_dump(exclude_none=True))
     if not success:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nada que actualizar o error al actualizar")
-
-    return get_user_by_id(user_id)
+    
+    user = get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+    return {
+        "id": user.id,
+        "email": user.email,
+        "nombre": user.nombre,
+        "tipo": user.tipo,
+        "username": user.username,
+    }
 
 
 @router.delete("/usuarios/{user_id}/", status_code=status.HTTP_204_NO_CONTENT)
