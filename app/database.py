@@ -22,7 +22,7 @@ db_config = {
     "database": "myapi",
 }
 
-# ------------- USUARY FUNCTIONS --------------
+# ------------- USER FUNCTIONS --------------
 
 
 def insert_user(user: UserCreate) -> UserOut:  # ✅ Cambiado de int a UserOut

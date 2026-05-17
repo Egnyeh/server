@@ -120,3 +120,21 @@ class TokenData(BaseModel): #datos dentro del token JWT
     user_id: int
     username: str
     tipo: str
+
+
+#============== RESERVAS MODELS ===============
+class ReservaJuegoCreate(BaseModel):
+    id_juego: int
+    fecha_inicio: date
+    fecha_fin: date
+
+class ReservaEventoCreate(BaseModel):
+    id_evento: int
+
+class JuegoCreate(BaseModel):
+    nombre: str
+    precio_dia: float
+
+class EventoCreate(BaseModel):
+    nombre_evento: str
+    fecha: date

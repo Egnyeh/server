@@ -12,27 +12,9 @@ from app.database import (
     insert_evento,
     insert_juego,
 )
+from server.app.models import EventoCreate, JuegoCreate, ReservaEventoCreate, ReservaJuegoCreate
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
-
-
-# ---- Modelos inline (también puedes moverlos a models.py) ----
-
-class ReservaJuegoCreate(BaseModel):
-    id_juego: int
-    fecha_inicio: date
-    fecha_fin: date
-
-class ReservaEventoCreate(BaseModel):
-    id_evento: int
-
-class JuegoCreate(BaseModel):
-    nombre: str
-    precio_dia: float
-
-class EventoCreate(BaseModel):
-    nombre_evento: str
-    fecha: date
 
 
 # ---- Juegos ----
