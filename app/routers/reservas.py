@@ -12,7 +12,8 @@ from app.database import (
     insert_evento,
     insert_juego,
 )
-from server.app.models import EventoCreate, JuegoCreate, ReservaEventoCreate, ReservaJuegoCreate
+
+from app.models import EventoCreate, JuegoCreate, ReservaEventoCreate, ReservaJuegoCreate
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
 
