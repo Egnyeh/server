@@ -7,7 +7,9 @@ from app.database import (
     get_all_products,
     get_product_by_id,
     search_products_by_name,
-    insert_product
+    insert_product,
+    update_product as db_update_product, #He tenido que renombrar esto para que no colisione con el nombre del endpoint, que se llama igual xd y me de error
+    delete_product as db_delete_product,
 )
 
 router = APIRouter(prefix="/productos", tags=["Productos"])
@@ -56,7 +58,7 @@ async def delete_product(
     if not existing_product:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
 
-    success = db_update_product(product_id)
+    success = db_delete_product(product_id)
     if not success:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete product")
     return None
