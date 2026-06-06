@@ -277,12 +277,15 @@ def update_product(product_id: int, product: ProductUpdate) -> bool:
 
 
 def delete_product(product_id: int) -> bool:
-    with mariadb.connect(**db_config) as conn:
-        with conn.cursor() as cursor:
-            sql = "DELETE FROM producto WHERE id = ?"
-            cursor.execute(sql, (product_id,))
-            conn.commit()
-            return cursor.rowcount > 0  # Devuelve true si borramos al menos una fila
+    try:
+        with mariadb.connect(**db_config) as conn:
+            with conn.cursor() as cursor:
+                sql = "DELETE FROM producto WHERE id = ?"
+                cursor.execute(sql, (product_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+    except mariadb.IntegrityError:
+        return False #Si no le manejo el error cuando intento hacerlo explota
 
 
 # ------------- ORDER FUNCTIONS --------------
@@ -636,8 +639,11 @@ def update_user(user_id: int, datos: dict) -> bool:
 
 
 def delete_user(user_id: int) -> bool:
-    with mariadb.connect(**db_config) as conn:
-        with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM usuario WHERE id = ?", (user_id,))
-            conn.commit()
-            return cursor.rowcount > 0
+    try:
+        with mariadb.connect(**db_config) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM usuario WHERE id = ?", (user_id,))
+                conn.commit()
+                return cursor.rowcount > 0
+    except mariadb.IntegrityError:
+        return False
