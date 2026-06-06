@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from app.auth.auth import verify_admin, TokenData
-from app.database import get_all_users, update_user, delete_user, get_user_by_id
+from app.database import get_all_users, update_user, delete_user, get_user_by_id, get_all_orders
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -56,3 +56,7 @@ async def remove_user(
     if not success:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al eliminar el usuario")
     return None
+
+@router.get("/orders/", status_code=status.HTTP_200_OK)
+async def list_all_orders(admin: TokenData = Depends(verify_admin)):
+    return get_all_orders()

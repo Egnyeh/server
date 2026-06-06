@@ -411,7 +411,25 @@ def get_order_lines(numero_pedido: int) -> list[OrderLineOut]:
                 )
                 for row in rows
             ]
-        
+
+def get_all_orders() -> list[dict]:
+    with mariadb.connect(**db_config) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT numero_pedido, id_usuario, fecha_pedido, precio_total, estado FROM pedido"
+            )
+            rows = cursor.fetchall()
+            return [
+                {
+                    "numero_pedido": row[0],
+                    "id_usuario": row[1],
+                    "fecha_pedido": row[2],
+                    "precio_total": row[3],
+                    "estado": row[4],
+                }
+                for row in rows
+            ]
+
 # ------------- RESERVAS FUNCTIONS --------------
 
 def get_all_juegos() -> list[dict]:
