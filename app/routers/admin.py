@@ -74,7 +74,7 @@ async def list_all_orders(admin: TokenData = Depends(verify_admin)):
 @router.patch("/orders/{numero_pedido}/", status_code=status.HTTP_200_OK)
 async def update_order(
     numero_pedido: int,
-    datos: OrderStateUpdate,
+    datos: OrderStatusUpdate,
     admin: TokenData = Depends(verify_admin)
 ):
     if datos.estado not in (1, 2, 3, 4):
