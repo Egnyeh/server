@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from app.auth.auth import verify_admin, TokenData
-from app.database import get_all_users, update_user, delete_user, get_user_by_id, get_all_orders
+from app.database import get_all_users, update_user, delete_user, get_user_by_id, get_all_orders, update_order_state
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -12,6 +12,12 @@ class UserUpdate(BaseModel):
     email: Optional[str] = None
     nombre: Optional[str] = None
 
+
+class OrderStatusUpdate(BaseModel):
+    estado: int
+
+
+# Routers para usuarios
 
 @router.get("/usuarios/", status_code=status.HTTP_200_OK)
 async def list_users(admin: TokenData = Depends(verify_admin)):
@@ -26,11 +32,9 @@ async def update_user_data(
 ):
     if not get_user_by_id(user_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
-
-    success = update_user(user_id, datos.model_dump(exclude_none=True))
-    if not success:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nada que actualizar o error al actualizar")
     
+    update_user(user_id, datos.model_dump(exclude_none=True))
+
     user = get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
@@ -48,15 +52,35 @@ async def remove_user(
     user_id: int,
     admin: TokenData = Depends(verify_admin)
 ):
-    # Evitar que el admin se elimine a sí mismo
     if not get_user_by_id(user_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
 
     success = delete_user(user_id)
     if not success:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al eliminar el usuario")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede eliminar el usuario porque tiene pedidos, reservas o eventos asociados"
+        )
     return None
+
+
+# Routers para orders
 
 @router.get("/orders/", status_code=status.HTTP_200_OK)
 async def list_all_orders(admin: TokenData = Depends(verify_admin)):
     return get_all_orders()
+
+
+@router.patch("/orders/{numero_pedido}/", status_code=status.HTTP_200_OK)
+async def update_order(
+    numero_pedido: int,
+    datos: OrderStateUpdate,
+    admin: TokenData = Depends(verify_admin)
+):
+    if datos.estado not in (1, 2, 3, 4):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Estado inválido (debe ser 1-4)")
+
+    success = update_order_state(numero_pedido, datos.estado)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pedido no encontrado")
+    return {"numero_pedido": numero_pedido, "estado": datos.estado}

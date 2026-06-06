@@ -433,6 +433,16 @@ def get_all_orders() -> list[dict]:
                 for row in rows
             ]
 
+def update_order_state(numero_pedido: int, estado: int) -> bool:
+    with mariadb.connect(**db_config) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "UPDATE pedido SET estado = ? WHERE numero_pedido = ?",
+                (estado, numero_pedido)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
 # ------------- RESERVAS FUNCTIONS --------------
 
 def get_all_juegos() -> list[dict]:

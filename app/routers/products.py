@@ -60,7 +60,10 @@ async def delete_product(
 
     success = db_delete_product(product_id)
     if not success:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to delete product")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede eliminar el producto porque tiene pedidos asociados"
+        )
     return None
 
 
