@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from app.auth.auth import get_current_user, verify_admin, TokenData
 from app.database import (
+    delete_juego,
     get_all_juegos,
     get_all_eventos,
     create_reserva_juego,
@@ -11,12 +12,17 @@ from app.database import (
     get_reservas_by_user,
     insert_evento,
     insert_juego,
+    update_juego,
+    delete_juego
 )
 
 from app.models import EventoCreate, JuegoCreate, ReservaEventoCreate, ReservaJuegoCreate
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
 
+class JuegoUpdate(BaseModel):
+    nombre: str
+    precio_dia: float
 
 # ---- Juegos ----
 
@@ -31,6 +37,30 @@ async def create_juego(juego: JuegoCreate, admin: TokenData = Depends(verify_adm
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear el juego")
     return {"id": id_juego, "nombre": juego.nombre, "precio_dia": juego.precio_dia}
 
+@router.put("/juegos/{id_juego}/", status_code=status.HTTP_200_OK)
+async def update_juego_endpoint(
+    id_juego: int,
+    juego: JuegoUpdate,
+    admin: TokenData = Depends(verify_admin)
+):
+    success = update_juego(id_juego, juego.nombre, juego.precio_dia)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Juego no encontrado")
+    return {"id": id_juego, "nombre": juego.nombre, "precio_dia": juego.precio_dia}
+
+
+@router.delete("/juegos/{id_juego}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_juego_endpoint(
+    id_juego: int,
+    admin: TokenData = Depends(verify_admin)
+):
+    success = delete_juego(id_juego)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede eliminar el juego porque tiene reservas asociadas"
+        )
+    return None
 
 # ---- Eventos ----
 

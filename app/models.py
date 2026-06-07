@@ -138,3 +138,11 @@ class JuegoCreate(BaseModel):
 class EventoCreate(BaseModel):
     nombre_evento: str
     fecha: date
+
+class JuegoUpdate(BaseModel):
+    nombre: str
+    precio_dia: float
+
+class EventoUpdate(BaseModel):
+    nombre_evento: str
+    fecha: date

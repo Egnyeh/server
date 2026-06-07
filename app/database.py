@@ -585,6 +585,27 @@ def insert_juego(nombre: str, precio_dia: float) -> int | None:
         print(f"Error al insertar juego: {e}")
         return None
 
+def update_juego(id_juego: int, nombre: str, precio_dia: float) -> bool:
+    with mariadb.connect(**db_config) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "UPDATE juego SET nombre = ?, precio_dia = ? WHERE id = ?",
+                (nombre, precio_dia, id_juego)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+
+def delete_juego(id_juego: int) -> bool:
+    try:
+        with mariadb.connect(**db_config) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM juego WHERE id = ?", (id_juego,))
+                conn.commit()
+                return cursor.rowcount > 0
+    except mariadb.IntegrityError:
+        return False
+
 
 def insert_evento(id_admin: int, nombre_evento: str, fecha: date) -> int | None:
     try:
@@ -599,6 +620,27 @@ def insert_evento(id_admin: int, nombre_evento: str, fecha: date) -> int | None:
     except mariadb.Error as e:
         print(f"Error al insertar evento: {e}")
         return None
+
+def update_evento(id_evento: int, nombre_evento: str, fecha) -> bool:
+    with mariadb.connect(**db_config) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "UPDATE evento SET nombre_evento = ?, fecha = ? WHERE id = ?",
+                (nombre_evento, fecha, id_evento)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+
+def delete_evento(id_evento: int) -> bool:
+    try:
+        with mariadb.connect(**db_config) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM evento WHERE id = ?", (id_evento,))
+                conn.commit()
+                return cursor.rowcount > 0
+    except mariadb.IntegrityError:
+        return False
 
 # ------------- ADMIN USER MANAGEMENT --------------
 
