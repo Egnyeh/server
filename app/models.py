@@ -72,6 +72,7 @@ class ProductUpdate(BaseModel): #Al actualizar productos, los campos pueden ser 
     categoria: Optional[str] = None
     precio_unitario: Optional[float] = None
     stock: Optional[int] = None
+    disponibilidad: Optional[bool] = None 
 
 class ProductOut(ProductBase):
     id: int

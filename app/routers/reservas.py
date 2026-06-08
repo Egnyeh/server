@@ -1,9 +1,10 @@
 from datetime import date
 from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import BaseModel
-
+from app.models import EventoCreate, EventoUpdate, JuegoCreate, JuegoUpdate, ReservaEventoCreate, ReservaJuegoCreate
 from app.auth.auth import get_current_user, verify_admin, TokenData
 from app.database import (
+    delete_evento,
     delete_juego,
     get_all_juegos,
     get_all_eventos,
@@ -11,18 +12,15 @@ from app.database import (
     create_reserva_evento,
     get_reservas_by_user,
     insert_evento,
+    update_evento,
+    delete_evento,
     insert_juego,
     update_juego,
     delete_juego
 )
 
-from app.models import EventoCreate, JuegoCreate, ReservaEventoCreate, ReservaJuegoCreate
 
 router = APIRouter(prefix="/reservas", tags=["Reservas"])
-
-class JuegoUpdate(BaseModel):
-    nombre: str
-    precio_dia: float
 
 # ---- Juegos ----
 
@@ -74,6 +72,31 @@ async def create_evento(evento: EventoCreate, admin: TokenData = Depends(verify_
     if not id_evento:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error al crear el evento")
     return {"id": id_evento, "nombre_evento": evento.nombre_evento, "fecha": evento.fecha}
+
+@router.put("/eventos/{id_evento}/", status_code=status.HTTP_200_OK)
+async def update_evento_endpoint(
+    id_evento: int,
+    evento: EventoUpdate,
+    admin: TokenData = Depends(verify_admin)
+):
+    success = update_evento(id_evento, evento.nombre_evento, evento.fecha)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evento no encontrado")
+    return {"id": id_evento, "nombre_evento": evento.nombre_evento, "fecha": evento.fecha}
+
+
+@router.delete("/eventos/{id_evento}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_evento_endpoint(
+    id_evento: int,
+    admin: TokenData = Depends(verify_admin)
+):
+    success = delete_evento(id_evento)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="No se puede eliminar el evento porque tiene inscripciones asociadas"
+        )
+    return None
 
 
 # ---- Reservas ----
